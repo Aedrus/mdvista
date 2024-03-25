@@ -1,6 +1,6 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
-const path = require('node:path');
-// const showdown = require('showdown');
+const { readFile } = require('fs/promises')
+const showdown = require('showdown');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -24,7 +24,7 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
-    ipcMain.handle('dialog:openFile', handleFileOpen)
+    ipcMain.handle('dialog:openFile', handleMarkdownFile)
     createWindow();
 
     app.on('activate', () => {
@@ -43,11 +43,29 @@ app.on('window-all-closed', () => {
 // -----------------------------------
 // Handle File Processing
 // -----------------------------------
-async function handleFileOpen() {
-    const { canceled, filePaths } = await dialog.showOpenDialog({})
+async function handleMarkdownFile() {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+        filters: [
+            { name: 'Markdown Source File', extensions: ['md', 'markdown'] },
+        ]
+    })
+
     if (!canceled) {
-        return filePaths[0]
+        try {
+            return readMarkdownData(filePaths[0])
+        } catch(error) {
+            console.error(`Could not convert markdown file: ${error.message}`)
+        }
     } else {
-        return new Error("Please enter a valid file to continue.")
+        return new Error("Could not get file. Please enter a valid file to continue.")
+    }
+}
+
+async function readMarkdownData(filePath) {
+    try {
+        const markdownData = await readFile(filePath, 'utf-8')
+        return markdownData
+    } catch(err) {
+        console.error(`Could not read file data: ${err.message}`)
     }
 }

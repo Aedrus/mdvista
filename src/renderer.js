@@ -3,33 +3,30 @@
 // content and handle events.
 // -----------------------------------
 import './index.css';
-const fileUpload = document.getElementById("upload");
-const fileUpload2 = document.getElementById("upload-btn")
+const sd = require('showdown')
+
+const fileUpload = document.getElementById('upload-btn')
+const markdownContainer = document.getElementById('markdown-content')
 
 // -----------------------------------
 // Markdown File Handling
 // -----------------------------------
-function loadFile() {
-    let file = fileUpload.files[0];
-    let fileExt = file.name.split('.').at(-1)
+async function openMarkdownFile() {
+    try {
+        // Request markdown file data from backend
+        const markdownData = await electronAPI.openFile();
 
-    // Preliminary Error Check
-    if (!file.name.includes('.md') || fileExt !== 'md') {
-        alert("Improper file type. Please upload a .md file.")
-        throw new Error("Improper file type. Please upload a .md file.")
+        // Parse markdownData to HTML
+        const converter = new sd.Converter({ghCompatibleHeaderId: true});
+        const parsedHtml = converter.makeHtml(markdownData);
+
+        // Inject parsed HTML into the frontend.
+        const htmlContainer = document.createElement('div')
+        htmlContainer.innerHTML = parsedHtml
+        markdownContainer.replaceChildren(htmlContainer)
+    } catch (err) {
+        console.error(`Data from backend could not be pulled: ${err.message}`)
     }
-    
-    // Convert file to FormData
-    let formData = new FormData();
-    formData.append('file', file)
-
-    // Send off to backend
 }
 
-async function runDialog() {
-    const filePath = await electronAPI.openFile();
-    console.log(filePath);
-}
-
-fileUpload.addEventListener('change', loadFile)
-fileUpload2.addEventListener('click', runDialog)
+fileUpload.addEventListener('click', openMarkdownFile)
