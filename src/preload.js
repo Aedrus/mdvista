@@ -6,7 +6,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    openFile: () => ipcRenderer.invoke('dialog:openFile')
+    openDialogFile: () => ipcRenderer.invoke('dialog:openFile'),
+    openDirectFile: () => ipcRenderer.invoke('direct:openFile')
 })
 
 // Expose channels using IPC to renderer.

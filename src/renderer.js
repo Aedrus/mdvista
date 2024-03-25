@@ -11,22 +11,47 @@ const markdownContainer = document.getElementById('markdown-content')
 // -----------------------------------
 // Markdown File Handling
 // -----------------------------------
-async function openMarkdownFile() {
+function renderMarkdownFile(markdownData) {
     try {
-        // Request markdown file data from backend
-        const markdownData = await electronAPI.openFile();
-
-        // Parse markdownData to HTML
-        const converter = new sd.Converter({ghCompatibleHeaderId: true});
-        const parsedHtml = converter.makeHtml(markdownData);
-
+        if (!markdownData) {
+            return
+        }
+        // Open markdown data as preview
+        const parsedHtml = parseMarkdownFile(markdownData)
+    
         // Inject parsed HTML into the frontend.
         const htmlContainer = document.createElement('div')
         htmlContainer.innerHTML = parsedHtml
         markdownContainer.replaceChildren(htmlContainer)
-    } catch (err) {
-        console.error(`Data from backend could not be pulled: ${err.message}`)
+    } catch(error) {
+        console.error(`Could not render markdown data: ${err.message}`)
     }
 }
 
-fileUpload.addEventListener('click', openMarkdownFile)
+function parseMarkdownFile(markdownData) {
+    try {
+        // Parse markdownData to HTML
+        const converter = new sd.Converter({ghCompatibleHeaderId: true})
+        return converter.makeHtml(markdownData)
+    } catch (err) {
+        throw new Error(`Data from backend could not be pulled: ${err.message}`)
+    }
+}
+
+fileUpload.addEventListener('click', async () => {
+    try {
+        const markdownFileData = await electronAPI.openDialogFile();
+        await renderMarkdownFile(markdownFileData);
+    } catch (error) {
+        console.error(`Error uploading file: ${error.message}`);
+    }
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const markdownFileData = await electronAPI.openDirectFile();
+        await renderMarkdownFile(markdownFileData);
+    } catch (error) {
+        console.error(`Error opening file: ${error.message}`);
+    }
+});
