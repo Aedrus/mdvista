@@ -5,3 +5,11 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+
+.hidden {
+    display: none;
+}
+
+.shown {
+    display: block;
+}
