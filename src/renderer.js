@@ -9,7 +9,7 @@ const fileUpload = document.getElementById('upload-btn')
 const markdownContainer = document.getElementById('markdown-content')
 
 // -----------------------------------
-// Markdown File Handling
+// Markdown File Rendering
 // -----------------------------------
 function renderMarkdownFile(markdownData) {
     try {
@@ -38,10 +38,13 @@ function parseMarkdownFile(markdownData) {
     }
 }
 
+// -----------------------------------
+// Event Listeners
+// -----------------------------------
 fileUpload.addEventListener('click', async () => {
     try {
         const markdownFileData = await electronAPI.openDialogFile();
-        await renderMarkdownFile(markdownFileData);
+        renderMarkdownFile(markdownFileData);
     } catch (error) {
         console.error(`Error uploading file: ${error.message}`);
     }
@@ -50,7 +53,7 @@ fileUpload.addEventListener('click', async () => {
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const markdownFileData = await electronAPI.openDirectFile();
-        await renderMarkdownFile(markdownFileData);
+        renderMarkdownFile(markdownFileData);
     } catch (error) {
         console.error(`Error opening file: ${error.message}`);
     }

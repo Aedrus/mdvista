@@ -48,7 +48,7 @@ async function handleDirectFile() {
     try {
         const filePath = process.argv[1]
         if (filePath === undefined) {
-            throw new Error('File not found.')
+            return ""
         }
         else if (!hasExtension(filePath, ['.md', '.markdown'])) {
             throw new Error('File is not of type .md or .markdown.')
