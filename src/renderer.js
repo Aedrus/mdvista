@@ -3,7 +3,7 @@
 // content and handle events.
 // -----------------------------------
 import './index.css';
-const sd = require('showdown')
+const showdown = require('showdown')
 
 const fileUpload = document.getElementById('upload-btn')
 const markdownContainer = document.getElementById('markdown-content')
@@ -42,7 +42,12 @@ function renderMarkdownFile(markdownData) {
 
 function parseMarkdownFile(markdownData) {
     try {
-        const converter = new sd.Converter({ghCompatibleHeaderId: true})
+        const converter = new showdown.Converter({ 
+            ghCompatibleHeaderId: true,
+            disableForced4SpacesIndentedSublists: true,
+            strikethrough: true,
+            tables: true,
+        })
         return converter.makeHtml(markdownData)
     } catch (error) {
         throw new Error(`Markdown data from backend could not be parsed: ${error.message}`)

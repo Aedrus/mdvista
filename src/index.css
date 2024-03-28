@@ -1,10 +1,114 @@
+/* ----------------------------------- */
+/* Base Styles */
+/* ----------------------------------- */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+    line-height: 1.5rem;
+    margin: auto;
+    background-color: rgb(255, 255, 255);
 }
+
+h1 {
+    font-size: 2rem;
+    line-height: 3.7rem;
+    border-bottom: 1px rgb(210, 210, 216) solid;
+}
+h2 { 
+    font-size: 1.5rem;
+    line-height: 1.7rem;
+}
+h3 { font-size: 1.2rem;}
+h4 { font-size: 1rem;}
+h5 { font-size: 0.8rem;}
+
+li {
+    margin-bottom: 0.4rem;
+}
+ul, ol {
+    margin-top: 0.4rem;
+}
+
+a {
+   color: #0060df;
+   text-decoration-color: #0060df;
+   transition: 200ms ease-in;
+}
+
+a:hover {
+    color: black;
+    text-decoration-color: black;
+    transition: 200ms ease-in;
+}
+
+blockquote {
+    background: #f5f5f5;
+    border-left: 6px solid #dcdcdc;
+    border-radius: 2px;
+    padding: 1em 10px 1em .6em;
+    margin: 1em 10px;
+    line-height: 2em;
+}
+blockquote > p {
+    padding: 0;
+    margin: 0;
+}
+
+pre:nth-child(n) {
+    background: #f5f5f5;
+    border: 1px solid rgb(230, 230, 230);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+pre > code {
+    color: #383838;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+code {
+    color: #bc5b00;
+    background: #f5f5f5;
+    padding: .4em;
+    border-radius: 6px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+  
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+tr {
+    transition: 200ms;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+tbody tr:hover {
+    background-color: #ddd;
+    transition: 200ms;
+}
+
+/* ----------------------------------- */
+/* Utility & Animation Styles */
+/* ----------------------------------- */  
 
 .hidden {
     display: none;
@@ -12,4 +116,18 @@ body {
 
 .shown {
     display: block;
+}
+
+/* ----------------------------------- */
+/* Component & Section Styles */
+/* ----------------------------------- */
+
+#main-content {
+    padding: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.96);
+}
+
+#markdown-content > div > :first-child {
+    padding-top: 0;
+    margin-top: 0;
 }
