@@ -1,5 +1,5 @@
-const { app, BrowserWindow, dialog, ipcMain } = require('electron');
-const { readFile } = require('fs/promises');
+const { app, BrowserWindow, Menu, webContents, dialog, ipcMain } = require('electron');
+const { readFile } = require('fs');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -7,8 +7,10 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+// Create browser window
+let mainWindow;
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -22,6 +24,109 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
+
+// Menu bar component
+const menuTemplate = [
+    {
+        label: 'File',
+        submenu: [
+            {
+                label: 'Open File...',
+                click: () => {
+    
+                }
+            },
+            {
+                label: 'Open New Window',
+                click: () => {
+    
+                }
+            },
+            {
+                label: 'Options',
+                accelerator: 'CmdOrCtrl+O',
+                click: () => {
+                    mainWindow.webContents.send('openOptions', true)
+                }
+            },
+        ],
+    },
+    {
+        label: 'Edit',
+        submenu: [
+            {
+                label: 'Cut',
+                click: () => {
+    
+                }
+            },
+            {
+                label: 'Copy',
+                click: () => {
+    
+                }
+            },
+            {
+                label: 'Paste',
+                click: () => {
+                    
+                }
+            },
+            {
+                label: 'Refresh',
+                click: () => {
+    
+                }
+            },
+        ],
+    },
+    {
+        label: 'View',
+        submenu: [
+            {
+                label: 'Zoom In',
+                click: () => {
+    
+                }
+            },
+            {
+                label: 'Zoom Out',
+                click: () => {
+                    
+                }
+            },
+            { type: 'separator' },
+            {
+                label: 'Developer Tools...',
+                accelerator: 'F12',
+                click: () => {
+                    if (mainWindow.webContents.isDevToolsOpened()) {
+                        mainWindow.webContents.closeDevTools()
+                    } else {
+                        mainWindow.webContents.openDevTools()
+                    }
+                }
+            },
+            { type: 'separator' },
+            {
+                label: 'Maximize',
+                click: () => {
+                    
+                }
+            },
+            {
+                label: 'Minimize',
+                click: () => {
+                    
+                }
+            }
+        ],
+    }
+]
+
+// Build menu bar from template
+const menu = Menu.buildFromTemplate(menuTemplate)
+Menu.setApplicationMenu(menu)
 
 app.whenReady().then(() => {
     ipcMain.handle('dialog:openFile', handleDialogFile)
@@ -79,10 +184,10 @@ async function handleDialogFile() {
 
 async function readMarkdownData(filePath) {
     try {
-        const markdownData = await readFile(filePath, 'utf-8')
+        const markdownData = readFile(filePath, 'utf-8')
         return markdownData
-    } catch(err) {
-        console.error(`Could not read file data: ${err.message}`)
+    } catch(error) {
+        console.error(`Could not read file data: ${error.message}`)
     }
 }
 

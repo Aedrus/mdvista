@@ -1,4 +1,29 @@
 /* ----------------------------------- */
+/* Variables
+/* ----------------------------------- */
+:root[data-theme="light"] {
+    --color-primary: rgb(255, 255, 255);
+    --color-primary-off: rgb(236, 236, 236);
+    --color-secondary: rgb(28, 28, 28);
+    --color-secondary-off: rgb(90, 90, 90);
+    --color-text: rgb(25, 25, 25);
+    --color-link: rgb(0, 96, 223);
+    --color-code: rgb(243, 243, 243);
+    --color-code-text: rgb(32, 33, 36);
+    --modal-backdrop: rgba(10,10,10,.75);
+}
+:root[data-theme="dark"] {
+    --color-primary: rgb(32, 33, 36);
+    --color-primary-off: hsl(216, 7%, 17%);
+    --color-secondary: rgb(255, 255, 255);
+    --color-secondary-off: rgb(213, 213, 213);
+    --color-text: rgb(255, 255, 255);
+    --color-link: rgb(119, 134, 253);
+    --color-code: rgb(53, 57, 63);
+    --color-code-text: rgb(218, 218, 218);
+    --modal-backdrop: rgba(20,20,20,.85);
+}
+/* ----------------------------------- */
 /* Base Styles */
 /* ----------------------------------- */
 body {
@@ -6,13 +31,14 @@ body {
     Arial, sans-serif;
     line-height: 1.5rem;
     margin: auto;
-    background-color: rgb(255, 255, 255);
+    color: var(--color-text);
+    background-color: var(--color-primary);
 }
 
 h1 {
     font-size: 2rem;
     line-height: 3.7rem;
-    border-bottom: 1px rgb(210, 210, 216) solid;
+    border-bottom: 1px var(--color-primary-off) solid;
 }
 h2 { 
     font-size: 1.5rem;
@@ -22,6 +48,10 @@ h3 { font-size: 1.2rem;}
 h4 { font-size: 1rem;}
 h5 { font-size: 0.8rem;}
 
+p {
+    font-size: 1rem;
+}
+
 li {
     margin-bottom: 0.4rem;
 }
@@ -30,22 +60,22 @@ ul, ol {
 }
 
 a {
-   color: #0060df;
-   text-decoration-color: #0060df;
+   color: var(--color-link);
+   text-decoration-color: var(--color-link);
    transition: 200ms ease-in;
 }
 
 a:hover {
-    color: black;
-    text-decoration-color: black;
+    color: var(--color-secondary);
+    text-decoration-color: var(--color-secondary);
     transition: 200ms ease-in;
 }
 
 blockquote {
-    background: #f5f5f5;
-    border-left: 6px solid #dcdcdc;
-    border-radius: 2px;
-    padding: 1em 10px 1em .6em;
+    background: var(--color-code);
+    border-left: 6px solid var(--color-secondary-off);
+    color: var(--color-code-text);
+    padding: 1em;
     margin: 1em 10px;
     line-height: 2em;
 }
@@ -55,23 +85,23 @@ blockquote > p {
 }
 
 pre:nth-child(n) {
-    background: #f5f5f5;
-    border: 1px solid rgb(230, 230, 230);
+    background: var(--color-code);
+    border: 1px solid var(--color-primary-off);
     border-radius: 8px;
     padding: 1rem;
     margin: 1.5rem 0;
 }
 
 pre > code {
-    color: #383838;
+    color: var(--color-code-text);
     background: none;
     padding: 0;
     border-radius: 0;
 }
 
 code {
-    color: #bc5b00;
-    background: #f5f5f5;
+    color: var(--color-code-text);
+    background: var(--color-code);
     padding: .4em;
     border-radius: 6px;
 }
@@ -79,18 +109,19 @@ code {
 table {
     border-collapse: collapse;
     width: 100%;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-primary);
 }
   
 th, td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-code);
 }
 
 th {
-    background-color: #f2f2f2;
+    background-color: var(--color-code);
     font-weight: bold;
+    color: var(--color-code-text);
 }
 
 tr {
@@ -98,11 +129,13 @@ tr {
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f5f5f5;
+    background-color: var(--color-code);
+    color: var(--color-code-text);
 }
 
 tbody tr:hover {
-    background-color: #ddd;
+    background-color: var(--color-primary-off);
+    color: var(--color-text);
     transition: 200ms;
 }
 
@@ -114,20 +147,153 @@ tbody tr:hover {
     display: none;
 }
 
-.shown {
+.active {
     display: block;
 }
 
 /* ----------------------------------- */
 /* Component & Section Styles */
 /* ----------------------------------- */
-
 #main-content {
-    padding: 1.5rem;
-    background-color: rgba(255, 255, 255, 0.96);
+    padding: 3em;
 }
 
 #markdown-content > div > :first-child {
     padding-top: 0;
     margin-top: 0;
+}
+
+#upload-btn-section {
+    background: var(--color-code);
+    border-radius: 8px;
+    max-width: 720px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2em;
+    margin: 0 auto;
+}
+
+.upload-icon-src {
+    width: 320px;
+    height: 320px;
+}
+
+/* Options Popup Modal */
+.modal {
+    position: fixed;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: var(--modal-backdrop);
+    z-index: 1;
+  }
+  
+.modal-content {
+    background-color: var(--color-primary);
+    margin: 10% auto;
+    padding: 2rem 2rem;
+    border: 1px solid var(--color-primary-off);
+    border-radius: 1rem;
+    width: clamp(470px, 700px, max(90vw, 20rem));
+}
+
+.modal-header {
+    height: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px var(--color-primary-off) solid;
+}
+
+.modal-body {
+    padding: 1rem 0;
+}
+
+.modal-option-group {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    align-items: center;
+}
+
+.modal-option-group h3,
+.modal-option-group p {
+    margin: 0.2rem 0;
+    padding: 0;
+}
+.modal-option-group h3 {
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+.modal-option-group p {
+    font-size: 0.8rem;
+    color: var(--color-code-text);
+    filter: opacity(0.8);
+}
+
+.modal-close {
+    color: var(--color-secondary);
+    font-size: 1.5rem;
+    padding: 0;
+    margin: 0;
+    height: 90%;
+    font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Dropdown Selection Box */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    text-align: right;
+  }
+  
+.dropdown .dropbtn {
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: #fff;
+    min-width: 200px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 16px 0 rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 8px 16px;
+    text-decoration: none;
+    text-align: left;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+    border-radius: 6px;
+}
+  
+.dropdown .dropbtn::after {
+    content: "\25BE";
+    font-size: 16px;
+    margin-left: 5px;
+    color: var(--color-secondary-off);
 }

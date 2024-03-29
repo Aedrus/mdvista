@@ -5,12 +5,30 @@
 import './index.css';
 const showdown = require('showdown')
 
-const fileUpload = document.getElementById('upload-btn')
-const markdownContainer = document.getElementById('markdown-content')
+// -----------------------------------
+// JavaScript Element Constants
+// -----------------------------------
+var root = document.documentElement;
 
+const fileUpload = document.getElementById('upload-btn');
+const markdownContainer = document.getElementById('markdown-content');
+
+const dropdownBtn = document.querySelector(".dropbtn");
+const dropdownBtnContent = document.querySelector(".dropdown-content");
+
+const optionsModal = document.getElementById('OptionsModal')
+const optionsModalClose = document.querySelector('.modal-close')
+
+const lightThemeOption = document.getElementById('light')
+const darkThemeOption = document.getElementById('dark')
+
+// -----------------------------------
+// Session Storage Process
+// -----------------------------------
 function addToSessionStorage(data) {
     sessionStorage.setItem("docContent", data)
 }
+
 // -----------------------------------
 // Markdown File Rendering
 // -----------------------------------
@@ -60,8 +78,36 @@ function refreshContent(sessionKey) {
 }
 
 // -----------------------------------
+// Base Component Functionality
+// -----------------------------------
+function toggleDropdown() {
+    if (dropdownBtnContent.classList.contains('active')) {
+        dropdownBtnContent.classList.add('hidden');
+        dropdownBtnContent.classList.remove('active');
+    } else {
+        dropdownBtnContent.classList.add('active');
+        dropdownBtnContent.classList.remove('hidden');
+    }
+}
+
+function toggleModal() {
+    if (optionsModal.classList.contains('active')) {
+        optionsModal.classList.add('hidden');
+        optionsModal.classList.remove('active');
+    } else {
+        optionsModal.classList.add('active');
+        optionsModal.classList.remove('hidden');
+    }
+}
+
+function selectTheme(option) {
+    root.setAttribute('data-theme', option.id)
+  }
+
+// -----------------------------------
 // Event Listeners
 // -----------------------------------
+/* Listener for refreshing changes and direct file from backend. */
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         if (sessionStorage.getItem('docContent')) {
@@ -75,6 +121,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+/* Listener for opening file dialog from frontend. */
 fileUpload.addEventListener('click', async () => {
     try {
         const markdownFileData = await electronAPI.openDialogFile();
@@ -83,3 +130,27 @@ fileUpload.addEventListener('click', async () => {
         console.error(`Error uploading file: ${error.message}`);
     }
 });
+
+/* Listener for opening options menu. */
+window.electronAPI.onOpenOptions((value) => {
+    if (value) {
+        optionsModal.classList.add('active');
+        optionsModal.classList.remove('hidden');
+    }
+  })
+
+/* Listener for general click events. */
+window.addEventListener('click', (event) => {
+    if (!event.target.matches('.dropbtn')) {
+        if (dropdownBtnContent.classList.contains('active')) {
+            dropdownBtnContent.classList.add('hidden');
+            dropdownBtnContent.classList.remove('active');
+        }
+    }
+})
+
+/* Listener(s) for toggling of elements. */
+dropdownBtn.addEventListener('click', (e) => toggleDropdown(e))
+optionsModalClose.addEventListener('click', (e) => toggleModal(e))
+lightThemeOption.addEventListener('click', (e) => selectTheme(e.target))
+darkThemeOption.addEventListener('click', (e) => selectTheme(e.target))

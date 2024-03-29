@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,41 @@
   </head>
   <body>
     <main id="main-content">
-        <button id="upload-btn">Upload File</button>
+        <div id="upload-btn-section">
+            <button id="upload-btn">
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+                </div>
+            </button>
+            <p>Choose a file to preview</p>
+        </div>
+
+        <!-- The modal -->
+        <div id="OptionsModal" class="modal hidden">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Options</h3>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-option-group">
+                        <div>
+                            <h3>Theme</h3>
+                            <p>Choose between dark and light themes.</p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="dropbtn">Select Theme</button>
+                            <div class="dropdown-content theme-toggle hidden">
+                                <a href="#" id="light">Light</a>
+                                <a href="#" id="dark">Dark</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <section id="markdown-content"></section>
     </main>
   </body>
