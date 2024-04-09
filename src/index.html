@@ -8,12 +8,16 @@
   <body>
     <main id="main-content">
         <div id="upload-btn-section">
-            <button id="upload-btn">
-                <div class="upload-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
-                </div>
-            </button>
-            <p>Choose a file to preview</p>
+            <div class="upload-btn-icon-group">
+                <button id="upload-btn">
+                    <div class="upload-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+                    </div>
+                </button>
+            </div>
+            <div class="upload-btn-text-group">
+                <p>Choose a file to preview.</p>
+            </div>
         </div>
 
         <!-- The modal -->
@@ -21,7 +25,7 @@
             <!-- Modal content -->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Options</h3>
+                    <h3>Preferences</h3>
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
@@ -33,15 +37,14 @@
                         <div class="dropdown">
                             <button class="dropbtn">Select Theme</button>
                             <div class="dropdown-content theme-toggle hidden">
-                                <a href="#" id="light">Light</a>
-                                <a href="#" id="dark">Dark</a>
+                                <a data-prop="theme" href="#" class="light">Light</a>
+                                <a data-prop="theme" href="#" class="dark">Dark</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <section id="markdown-content"></section>
     </main>
   </body>

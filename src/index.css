@@ -140,18 +140,6 @@ tbody tr:hover {
 }
 
 /* ----------------------------------- */
-/* Utility & Animation Styles */
-/* ----------------------------------- */  
-
-.hidden {
-    display: none;
-}
-
-.active {
-    display: block;
-}
-
-/* ----------------------------------- */
 /* Component & Section Styles */
 /* ----------------------------------- */
 #main-content {
@@ -166,17 +154,32 @@ tbody tr:hover {
 #upload-btn-section {
     background: var(--color-code);
     border-radius: 8px;
-    max-width: 720px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: clamp(50px, 300px, 420px);
+    display: grid;
+    grid-template-columns: 1fr;
     padding: 2em;
     margin: 0 auto;
+    text-align: center;
 }
 
-.upload-icon-src {
-    width: 320px;
-    height: 320px;
+.upload-icon svg {
+    fill: var(--color-primary);
+}
+
+#upload-btn {
+    width: 64px;
+    height: 64px;
+    border: none;
+    background: var(--color-secondary);
+    border-radius: 50%;
+    transition: transform 50ms;
+    cursor: pointer;
+}
+#upload-btn:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+    transition: transform 100ms;
+    box-shadow: 2px, 20px;
 }
 
 /* Options Popup Modal */
@@ -283,7 +286,9 @@ tbody tr:hover {
     padding: 8px 16px;
     text-decoration: none;
     text-align: left;
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .dropdown-content a:hover {
@@ -296,4 +301,21 @@ tbody tr:hover {
     font-size: 16px;
     margin-left: 5px;
     color: var(--color-secondary-off);
+}
+
+.checkmark {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ----------------------------------- */
+/* Utility & Animation Styles */
+/* ----------------------------------- */  
+
+.hidden {
+    display: none !important;
+}
+
+.active {
+    display: block;
 }
