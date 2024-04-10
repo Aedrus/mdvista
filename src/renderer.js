@@ -3,8 +3,9 @@
 // content and handle events.
 // -----------------------------------
 import './index.css';
-const {capitalizeFirstLetter, hasMatchingAttribute} = require('./utility')
+const {capitalizeFirstLetter} = require('./utility')
 const showdown = require('showdown');
+import anime from 'animejs';
 
 // -----------------------------------
 // JavaScript Element Constants
@@ -13,7 +14,10 @@ var root = document.documentElement;
 
 const fileUpload = document.getElementById('upload-btn');
 const fileUploadSection = document.getElementById('upload-btn-section');
+const fileUploadBacking = document.querySelector('.upload-btn-background');
+
 const markdownContainer = document.getElementById('markdown-content');
+const markdownContainerCover = document.querySelector('.markdown-content-cover')
 
 const dropdownBtn = document.querySelector(".dropbtn");
 const dropdownBtnContent = document.querySelector(".dropdown-content");
@@ -117,6 +121,24 @@ function renderMarkdownFile(markdownData) {
         // Hide upload button
         fileUploadSection.classList.add('hidden')
 
+        // Animate cover
+        if (markdownContainerCover.classList.contains('hidden')) {
+            markdownContainerCover.classList.add('active')
+            markdownContainerCover.classList.remove('hidden')
+            anime({
+                targets: markdownContainerCover,
+                translateY: '100%',
+                opacity: [
+                    {value: 1, duration: 2000, delay: 500},
+                    {value: 0, duration: 2000, delay: 0},
+                ],
+                duration: 2000,
+                easing: 'easeInOutQuad',
+                delay: 100,
+                loop: false
+            })
+        }
+        
     } catch(error) {
         console.error(`Could not render markdown data: ${err.message}`)
     }
@@ -211,6 +233,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     optionsModalClose.addEventListener('click', (e) => toggleModal(e))
     userOptionsGroup.forEach((option) => {
         option.addEventListener('click', (e) => selectOption(option))
+    })
+
+    // Animations
+    anime({
+        targets: fileUploadBacking,
+        keyframes: [
+            {rotate: 0, opacity: 0.85, duration: 0},
+            {rotate: '0.5turn', opacity: 1, duration: 3500},
+            {rotate: '1turn', opacity: 0.85, duration: 3500},
+        ],
+        easing: 'linear', 
+        loop: true
     })
 });
 
