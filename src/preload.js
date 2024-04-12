@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadPreferences: () => ipcRenderer.invoke('loadPreferences'),
     
     onOpenOptions: (callback) => ipcRenderer.on('openOptions', (_event, value) => callback(value)),
+    onOpenNewFile: (callback) => ipcRenderer.on('dialog:openNewFile', (_event, value) => callback(value)),
 
     setPref: (preference) => ipcRenderer.send("json:setPref", preference)
 

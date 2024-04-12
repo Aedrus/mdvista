@@ -32,21 +32,30 @@ const menuTemplate = [
         submenu: [
             {
                 label: 'Open File...',
+                accelerator: 'CmdOrCtrl+F',
                 click: () => {
-    
+                    const currentWindow = BrowserWindow.getFocusedWindow();
+                    currentWindow.webContents.send('dialog:openNewFile', true)
                 }
             },
             {
                 label: 'Open New Window',
+                accelerator: 'CmdOrCtrl+Shift+N',
                 click: () => {
-    
+                    createWindow()
                 }
             },
             {
-                label: 'Options',
+                label: 'Close Window',
+                accelerator: 'CmdOrCtrl+W',
+                role: 'close'
+            },
+            {
+                label: 'Preferences',
                 accelerator: 'CmdOrCtrl+O',
                 click: () => {
-                    mainWindow.webContents.send('openOptions', true)
+                    const currentWindow = BrowserWindow.getFocusedWindow();
+                    currentWindow.webContents.send('openOptions', true)
                 }
             },
         ],
@@ -54,98 +63,73 @@ const menuTemplate = [
     {
         label: 'Edit',
         submenu: [
-            {
-                label: 'Cut',
-                click: () => {
-    
-                }
-            },
-            {
-                label: 'Copy',
-                click: () => {
-    
-                }
-            },
-            {
-                label: 'Paste',
-                click: () => {
-                    
-                }
-            },
-            {
-                label: 'Refresh',
-                click: () => {
-    
-                }
-            },
+            { role: 'copy' },
+            { role: 'paste' },
+            { type: 'separator' },
+            { role: 'reload' },
+            { role: 'forceReload' },
         ],
     },
     {
         label: 'View',
         submenu: [
-            {
-                label: 'Zoom In',
-                click: () => {
-    
-                }
-            },
-            {
-                label: 'Zoom Out',
-                click: () => {
-                    
-                }
-            },
+            { role: 'zoomIn', accelerator: 'CmdOrCtrl++' },
+            { role: 'zoomOut' },
+            { role: 'resetZoom' },
             { type: 'separator' },
             {
                 label: 'Developer Tools...',
                 accelerator: 'F12',
                 click: () => {
-                    if (mainWindow.webContents.isDevToolsOpened()) {
-                        mainWindow.webContents.closeDevTools()
+                    const currentWindow = BrowserWindow.getFocusedWindow();
+                    if (currentWindow.webContents.isDevToolsOpened()) {
+                        currentWindow.webContents.closeDevTools()
                     } else {
-                        mainWindow.webContents.openDevTools()
+                        currentWindow.webContents.openDevTools()
                     }
                 }
             },
             { type: 'separator' },
-            {
-                label: 'Maximize',
-                click: () => {
-                    
-                }
-            },
-            {
-                label: 'Minimize',
-                click: () => {
-                    
-                }
-            }
+            { role: 'maximize' },
+            { role: 'minimize' },
         ],
     }
-]
+];
 
 // -----------------------------------
 // Create Main Window
 // -----------------------------------
-var mainWindow;
+// Array/Set of currently open windows.
+const windows = new Set();
+
 const createWindow = () => {
-    mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    minWidth: 500,
-    webPreferences: {
-        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-    },
-  });
+    const newWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        minWidth: 500,
+        webPreferences: {
+            preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+        },
+    });
 
     // Load the HTML page in window.
-    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+    newWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+    
+    newWindow.once('ready-to-show', () => {
+        newWindow.show()
+    });
 
+    newWindow.on('closed', () => {
+        windows.delete(newWindow);
+        newWindow = null
+    });
+
+    windows.add(newWindow);
+    return newWindow;
     // Open the DevTools at Render.
-    mainWindow.webContents.openDevTools();
-
-    return mainWindow
+    // newWindow.webContents.openDevTools();
 };
+
 
 // -----------------------------------
 // Prepare-to-Render Phase for App
@@ -154,15 +138,18 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
-const menu = Menu.buildFromTemplate(menuTemplate)
-Menu.setApplicationMenu(menu)
 
 app.whenReady().then(() => {
-    // Preliminaries
+    // Build Menu Bar
+    const menu = Menu.buildFromTemplate(menuTemplate)
+    Menu.setApplicationMenu(menu)
+
+    // Preliminaries & Handlers
     checkUserPrefs()
     ipcMain.handle('loadPreferences', handleLoadPreferences)
     ipcMain.handle('dialog:openFile', handleDialogFile)
     ipcMain.handle('direct:openFile', handleDirectFile)
+    ipcMain.on('json:setPref', handleSetPreference)
     ipcMain.on('json:setPref', handleSetPreference)
 
     // Render main window
@@ -219,9 +206,9 @@ async function handleDialogFile() {
     }
 }
 
-async function readMarkdownData(filePath) {
+function readMarkdownData(filePath) {
     try {
-        const markdownData = await readFileSync(filePath, 'utf8', err => console.error(err))
+        const markdownData = readFileSync(filePath, 'utf8')
         return markdownData
     } catch(error) {
         console.log(`Could not read file markdown data: ${error.message}`)
@@ -283,6 +270,7 @@ function handleLoadPreferences() {
     const preferenceData = readFileSync(FilePaths.PREF_ROOT_PATH, "utf8");
     return preferenceData
 }
+
 // -----------------------------------
 // Helper Functions
 // -----------------------------------

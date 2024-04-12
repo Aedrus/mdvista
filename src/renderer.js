@@ -14,7 +14,6 @@ var root = document.documentElement;
 
 const fileUpload = document.getElementById('upload-btn');
 const fileUploadSection = document.getElementById('upload-btn-section');
-const fileUploadBacking = document.querySelector('.upload-btn-background');
 
 const markdownContainer = document.getElementById('markdown-content');
 const markdownContainerCover = document.querySelector('.markdown-content-cover')
@@ -129,12 +128,11 @@ function renderMarkdownFile(markdownData) {
                 targets: markdownContainerCover,
                 translateY: '100%',
                 opacity: [
-                    {value: 1, duration: 2000, delay: 500},
-                    {value: 0, duration: 2000, delay: 0},
+                    {value: 1, duration: 1500, delay: 100},
+                    {value: 0, duration: 1500, delay: 0},
                 ],
-                duration: 2000,
-                easing: 'easeInOutQuad',
-                delay: 100,
+                easing: 'easeInOutQuart',
+                delay: 10,
                 loop: false
             })
         }
@@ -237,13 +235,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Animations
     anime({
-        targets: fileUploadBacking,
+        targets: '.upload-btn-background',
         keyframes: [
-            {rotate: 0, opacity: 0.85, duration: 0},
-            {rotate: '0.5turn', opacity: 1, duration: 3500},
-            {rotate: '1turn', opacity: 0.85, duration: 3500},
+            {rotate: '0turn', opacity: 0, duration: 0},
+            {rotate: '1turn', opacity: 1, duration: 4000},
+            {rotate: '0turn', opacity: 0, duration: 4000},
         ],
-        easing: 'linear', 
+        delay: anime.stagger(550, {from: 'last', easing: 'easeInOutQuart'}),
+        easing: 'easeInOutQuart', 
         loop: true
     })
 });
@@ -269,6 +268,19 @@ window.electronAPI.onOpenOptions((value) => {
     } else {
         optionsModal.classList.add('hidden');
         optionsModal.classList.remove('active');
+    }
+  })
+
+window.electronAPI.onOpenNewFile( async (value) => {
+    if (!value) {
+        return
+    }
+
+    try {
+        const markdownFileData = await electronAPI.openDialogFile();
+        renderMarkdownFile(markdownFileData);
+    } catch (error) {
+        console.error(`Error opening new file: ${error.message}`);
     }
   })
 
