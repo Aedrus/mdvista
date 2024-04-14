@@ -10,7 +10,7 @@ import anime from 'animejs';
 // -----------------------------------
 // JavaScript Element Constants
 // -----------------------------------
-var root = document.documentElement;
+const root = document.documentElement;
 
 const fileUpload = document.getElementById('upload-btn');
 const fileUploadSection = document.getElementById('upload-btn-section');
@@ -25,6 +25,9 @@ const optionsModal = document.getElementById('OptionsModal')
 const optionsModalClose = document.querySelector('.modal-close')
 
 const userOptionsGroup = document.querySelectorAll('a[data-prop]')
+
+const titleBarHeader = document.getElementById('titleBar-header')
+const titleBarMenuBtn = document.getElementById('titleBar-menu-btn')
 
 // -----------------------------------
 // State Management
@@ -175,12 +178,30 @@ function toggleDropdown() {
 }
 
 function toggleModal() {
-    if (optionsModal.classList.contains('active')) {
-        optionsModal.classList.add('hidden');
-        optionsModal.classList.remove('active');
+    if (optionsModal.style.opacity >= 1) {
+        let toggle = anime({
+            targets: optionsModal,
+            keyframes: [
+                {opacity: 1, duration: 0},
+                {opacity: 0, duration: 200},
+                {display: 'none', duration: 0}
+            ],
+            easing: 'easeInOutQuart',
+        })
+        toggle.finished.then(() => {
+            optionsModal.classList.add('hidden');
+        })
     } else {
-        optionsModal.classList.add('active');
-        optionsModal.classList.remove('hidden');
+        optionsModal.classList.remove('hidden')
+        anime({
+            targets: optionsModal,
+            keyframes: [
+                {opacity: 0, duration: 0},
+                {opacity: 1, duration: 200},
+                {display: 'block', duration: 0}
+            ],
+            easing: 'easeInOutQuart',
+        })
     }
 }
 
@@ -192,6 +213,9 @@ function selectOption(option) {
     const prefVal = option.classList[0]
     const prefProp = option.getAttribute("data-prop")
     electronAPI.setPref([prefProp, prefVal])
+
+    // Update top status bar (windows)
+    electronAPI.setTitleBarColor(prefVal)
 
     // Append active icon if none
     if (!option.innerHTML.includes('</svg>')) {
@@ -213,15 +237,23 @@ function selectOption(option) {
 // Event Listeners
 // -----------------------------------
 /* Listener for refreshing changes and pulling file from backend. */
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
     try {
+        loadUserPreferences();
         if (sessionStorage.getItem('docContent')) {
-            refreshContent('docContent')
+            refreshContent('docContent');
         } else {
-            const markdownFileData = await electronAPI.openDirectFile();
-            renderMarkdownFile(markdownFileData);
+            const directMarkdownData = electronAPI.openDirectFile();
+            directMarkdownData.then((value) => {
+                if (!value) {
+                    console.log('WARNING: Direct file not loaded at start. This is not an issue if the program was launched from the EXE rather than a specific file.');
+                } else {
+                    titleBarHeader.innerText = value.name;
+                    renderMarkdownFile(value.data);
+                }
+            })
         }
-        loadUserPreferences()
+
     } catch (error) {
         console.error(`Error opening file: ${error.message}`);
     }
@@ -235,50 +267,45 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Animations
     anime({
-        targets: '.upload-btn-background',
+        targets: '.upload-btn-circle',
         keyframes: [
             {rotate: '0turn', opacity: 0, duration: 0},
             {rotate: '1turn', opacity: 1, duration: 4000},
             {rotate: '0turn', opacity: 0, duration: 4000},
+            
         ],
         delay: anime.stagger(550, {from: 'last', easing: 'easeInOutQuart'}),
         easing: 'easeInOutQuart', 
-        loop: true
+        loop: true,
     })
 });
 
 /* Listener for opening file dialog from frontend. */
 fileUpload.addEventListener('click', async () => {
     try {
-        const markdownFileData = await electronAPI.openDialogFile();
-        renderMarkdownFile(markdownFileData);
+        const dialogMarkdownData = await electronAPI.openDialogFile();
+        titleBarHeader.innerText = dialogMarkdownData.name
+        renderMarkdownFile(dialogMarkdownData.data);
     } catch (error) {
         console.error(`Error uploading file: ${error.message}`);
     }
 });
 
-/* Listener for opening options menu. */
+titleBarMenuBtn.addEventListener('click', async () => {
+    await electronAPI.openMenu()
+})
+
 window.electronAPI.onOpenOptions((value) => {
-    if (!value) {
-        return
-    }
-    if (optionsModal.classList.contains('hidden')) {
-        optionsModal.classList.add('active');
-        optionsModal.classList.remove('hidden');
-    } else {
-        optionsModal.classList.add('hidden');
-        optionsModal.classList.remove('active');
-    }
+    if (!value) return;
+    toggleModal();
   })
 
 window.electronAPI.onOpenNewFile( async (value) => {
-    if (!value) {
-        return
-    }
-
+    if (!value) return;
     try {
-        const markdownFileData = await electronAPI.openDialogFile();
-        renderMarkdownFile(markdownFileData);
+        const dialogMarkdownData = await electronAPI.openDialogFile();
+        titleBarHeader.innerText = dialogMarkdownData.name
+        renderMarkdownFile(dialogMarkdownData.data);
     } catch (error) {
         console.error(`Error opening new file: ${error.message}`);
     }

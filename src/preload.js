@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onOpenOptions: (callback) => ipcRenderer.on('openOptions', (_event, value) => callback(value)),
     onOpenNewFile: (callback) => ipcRenderer.on('dialog:openNewFile', (_event, value) => callback(value)),
 
-    setPref: (preference) => ipcRenderer.send("json:setPref", preference)
-
+    setPref: (preference) => ipcRenderer.send("json:setPref", preference),
+    setTitleBarColor: (config) => ipcRenderer.send("titleBar:color", config),
+    openMenu: () => ipcRenderer.send("menu:openMenu")
 })

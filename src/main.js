@@ -1,11 +1,16 @@
-const { app, BrowserWindow, Menu, webContents, dialog, ipcMain } = require('electron');
-const { readFile, existsSync, writeFile, readFileSync, writeFileSync } = require('fs');
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
+const { existsSync, writeFile, readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 const Ajv = require("ajv");
 
 // -----------------------------------
 // Constants & Schemas
 // -----------------------------------
+const THEME_DEFAULTS = {
+    COLOR_LIGHT: '#ffffff',
+    COLOR_DARK: '#202124'
+}
+
 const FilePaths = {
     PREF_ROOT_PATH: path.join(app.getPath('userData'), 'UserPreferences.json'),
     TEMPLATE_PATH: path.join(__dirname, "defaultUserPreferences.json")
@@ -89,9 +94,6 @@ const menuTemplate = [
                     }
                 }
             },
-            { type: 'separator' },
-            { role: 'maximize' },
-            { role: 'minimize' },
         ],
     }
 ];
@@ -100,13 +102,19 @@ const menuTemplate = [
 // Create Main Window
 // -----------------------------------
 // Array/Set of currently open windows.
-const windows = new Set();
+let windows = new Set();
 
+var newWindow
 const createWindow = () => {
-    const newWindow = new BrowserWindow({
+    newWindow = new BrowserWindow({
         width: 800,
         height: 600,
         minWidth: 500,
+        titleBarStyle: 'hidden',
+        titleBarOverlay: {
+            color: 'white',
+            symbolColor: 'black',
+        },
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         },
@@ -116,6 +124,11 @@ const createWindow = () => {
     newWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
     
     newWindow.once('ready-to-show', () => {
+        newWindow.webContents.setZoomFactor(1.0)
+        newWindow.setTitleBarOverlay({
+            color: getThemePref(),
+            symbolColor: getThemePref(true),
+        })
         newWindow.show()
     });
 
@@ -126,10 +139,7 @@ const createWindow = () => {
 
     windows.add(newWindow);
     return newWindow;
-    // Open the DevTools at Render.
-    // newWindow.webContents.openDevTools();
 };
-
 
 // -----------------------------------
 // Prepare-to-Render Phase for App
@@ -138,11 +148,11 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
+// Build Menu Bar
+const menu = Menu.buildFromTemplate(menuTemplate)
+Menu.setApplicationMenu(menu)
 
 app.whenReady().then(() => {
-    // Build Menu Bar
-    const menu = Menu.buildFromTemplate(menuTemplate)
-    Menu.setApplicationMenu(menu)
 
     // Preliminaries & Handlers
     checkUserPrefs()
@@ -150,7 +160,8 @@ app.whenReady().then(() => {
     ipcMain.handle('dialog:openFile', handleDialogFile)
     ipcMain.handle('direct:openFile', handleDirectFile)
     ipcMain.on('json:setPref', handleSetPreference)
-    ipcMain.on('json:setPref', handleSetPreference)
+    ipcMain.on('titleBar:color', handleUpdateTitleBar)
+    ipcMain.on('menu:openMenu', handleOpenMenu)
 
     // Render main window
     createWindow();
@@ -177,12 +188,19 @@ async function handleDirectFile() {
     try {
         const filePath = process.argv[1]
         if (filePath === undefined || filePath == ".") {
-            return ""
+            return undefined
         }
         else if (!hasExtension(filePath, ['.md', '.markdown'])) {
             console.log('File is not of type .md or .markdown.')
         }
-        return readMarkdownData(filePath)
+
+        let fileName = path.basename(filePath)
+        fileName = fileName.split('.')[0]
+
+        return {
+            data: readMarkdownData(filePath),
+            name: fileName
+        }
     } catch(error) {
         console.log(`Could not load markdown file: ${error.message}`)
     }
@@ -197,7 +215,12 @@ async function handleDialogFile() {
 
     if (!canceled) {
         try {
-            return readMarkdownData(filePaths[0])
+            let fileName = path.basename(filePaths[0])
+            fileName = fileName.split('.')[0]
+            return {
+                data: readMarkdownData(filePaths[0]),
+                name: fileName
+            }
         } catch(error) {
             console.log(`Could not convert markdown file: ${error.message}`)
         }
@@ -266,23 +289,73 @@ async function handleSetPreference(event, preference) {
     }
 }
 
-function handleLoadPreferences() {
-    const preferenceData = readFileSync(FilePaths.PREF_ROOT_PATH, "utf8");
-    return preferenceData
+async function handleUpdateTitleBar(event, value) {
+    if (!value) {
+        console.log("error: could not update title bar.");
+    }
+    else if (value === 'light') {
+        newWindow.setTitleBarOverlay({
+            color: THEME_DEFAULTS.COLOR_LIGHT,
+            symbolColor: THEME_DEFAULTS.COLOR_DARK
+        })
+    } else if (value === 'dark') {
+        newWindow.setTitleBarOverlay({
+            color: THEME_DEFAULTS.COLOR_DARK,
+            symbolColor: THEME_DEFAULTS.COLOR_LIGHT
+        })
+    }
+}
+
+async function handleLoadPreferences() {
+    return await readFileSync(FilePaths.PREF_ROOT_PATH, "utf8");
+}
+
+async function handleOpenMenu() {
+    if (newWindow) {
+        await menu.popup(newWindow)
+    }
 }
 
 // -----------------------------------
 // Helper Functions
 // -----------------------------------
 /**
- * Checks if a `file` has a certain extension `ext` and returns __true__ if it does. 
- * The `ext` argument must be a single string, or an array of strings, and include the period/fullstop seperator prefix.
+ * Gets the value associated with the theme property in the preferences file.
  * 
- * If the file does not have any of the specified extensions, returns __false__.
+ * If a boolean value is passed for the `invert` parameter, then returns the
+ * opposite value associated with the property.
+ * @param {boolean} invert - Optional parameter to invert the return value.
+ * @returns string
+**/
+function getThemePref(invert) {
+    const preferenceData = readFileSync(FilePaths.PREF_ROOT_PATH, "utf8");
+    const preferences = JSON.parse(preferenceData);
+    for (const key in preferences) {
+        if (key === 'theme') {
+            if (invert) {
+                return (preferences[key] === 'light')
+                ? THEME_DEFAULTS.COLOR_DARK
+                : THEME_DEFAULTS.COLOR_LIGHT;
+            }
+            return (preferences[key] === 'light')
+            ? THEME_DEFAULTS.COLOR_LIGHT
+            : THEME_DEFAULTS.COLOR_DARK;
+        }
+    }
+    return THEME_DEFAULTS.COLOR_LIGHT
+}
+
+/**
+ * Checks if a `file` has a certain extension `ext` and returns __true__ 
+ * if it does. 
+ * The `ext` argument must be a single string, or an array of strings, and 
+ * include the period/fullstop seperator prefix.
+ * 
+ * If the file does not have any of the specified extensions, return __false__.
  * @param {any} file - The file to check for extension
- * @param {string} ext - The extension to compare against file. e.g. .txt or .json
+ * @param {string} ext - The extension to compare against file. e.g. .txt
  * @returns Boolean
- */
+**/
 function hasExtension(file, ext) {
     if (Array.isArray(ext)) {
         return ext.some((val) => {
@@ -294,7 +367,8 @@ function hasExtension(file, ext) {
 }
 
 /**
- * Checks if an object `obj` has a key `key` and if so, updates the key with the new value `newValue`. 
+ * Checks if an object `obj` has a key `key` and if so, updates the key 
+ * with the new value `newValue`. 
  * 
  * If the object does not have the key on it, then we return an error message.
  * @param {object} obj - The object to check and modify
