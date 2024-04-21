@@ -22,6 +22,7 @@
     "@electron-forge/plugin-webpack": "^7.3.1",
     "@electron/fuses": "^1.7.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.10.0",
     "electron": "29.1.5",
     "node-loader": "^2.0.0",
@@ -29,8 +30,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "aedrus",
-    "email": "marioferrera10@gmail.com"
+    "name": "Mario F."
   },
   "license": "MIT",
   "dependencies": {

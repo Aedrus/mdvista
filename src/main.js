@@ -3,6 +3,11 @@ const { existsSync, writeFile, readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 const Ajv = require("ajv");
 
+// Close app if using squirrel startup (windows)
+if (require('electron-squirrel-startup')) {
+    app.quit();
+}
+
 // -----------------------------------
 // Constants & Schemas
 // -----------------------------------
@@ -144,15 +149,16 @@ const createWindow = () => {
 // -----------------------------------
 // Prepare-to-Render Phase for App
 // -----------------------------------
-if (require('electron-squirrel-startup')) {
-    app.quit();
-}
 
 // Build Menu Bar
 const menu = Menu.buildFromTemplate(menuTemplate)
 Menu.setApplicationMenu(menu)
 
 app.whenReady().then(() => {
+    // Squirrel
+    if (process.argv.includes('--squirrel-firstrun')) {
+        app.quit()
+    }
 
     // Preliminaries & Handlers
     checkUserPrefs()
