@@ -246,7 +246,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const directMarkdownData = electronAPI.openDirectFile();
             directMarkdownData.then((value) => {
                 if (!value) {
-                    console.log('WARNING: Direct file not loaded at start. This is not an issue if the program was launched from the EXE rather than a specific file.');
+                    console.log('200: Succesfully launched with normal start.');
                 } else {
                     titleBarHeader.innerText = value.name;
                     renderMarkdownFile(value.data);
