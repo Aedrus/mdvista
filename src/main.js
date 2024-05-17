@@ -121,7 +121,7 @@ const createWindow = () => {
             symbolColor: 'black',
         },
         webPreferences: {
-            preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+            preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
         },
     });
 
@@ -155,12 +155,12 @@ const menu = Menu.buildFromTemplate(menuTemplate)
 Menu.setApplicationMenu(menu)
 
 app.whenReady().then(() => {
-    // Squirrel
+    // Prevent installer from showing app at the end of installation.
     if (process.argv.includes('--squirrel-firstrun')) {
         app.quit()
     }
 
-    // Preliminaries & Handlers
+    // Attach Handlers
     checkUserPrefs()
     ipcMain.handle('loadPreferences', handleLoadPreferences)
     ipcMain.handle('dialog:openFile', handleDialogFile)

@@ -1,6 +1,6 @@
 {
   "name": "mdvista",
-  "productName": "MDVista",
+  "productName": "mdvista",
   "version": "1.0.0",
   "description": "An easy-to-use and lightweight markdown previewer.",
   "main": ".webpack/main",
